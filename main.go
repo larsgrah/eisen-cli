@@ -80,7 +80,7 @@ func main() {
 
 			err = ioutil.WriteFile("package.json", packagejson, 0644)
 			check(err)
-			err = ioutil.WriteFile(".gitignore", packagejson, 0644)
+			err = ioutil.WriteFile(".gitignore", gitignore, 0644)
 			check(err)
 			err = os.Mkdir("src", os.ModePerm)
 			err = os.Chdir("src")
