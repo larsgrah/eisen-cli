@@ -331,12 +331,6 @@ import { HelloEisen } from './components/helloeisen/HelloEisen';
 const app = new VApp("target", new Renderer());
 app.init();
 
-const div = app.k("div", { attrs: [cssClass("contentDiv")] }, [
-    app.k("h1", { value: "Hello, eisen!" }),
-]);
-
-app.rootNode.appendChild(div);
-
 const container = app.createElement("div", undefined, app.rootNode, [cssClass("container")]);
 
 const routerMnt = app.createElement("div", undefined, container);
@@ -363,6 +357,11 @@ router.resolveRoute("/").catch(e => console.error(e));
 export class ` + componentName + ` extends Component {
     build(app: VApp): ComponentBuildFunc {
         return (root: VNode, props: Props) => {
+            const div = app.k("div", { attrs: [cssClass("contentDiv")] }, [
+                app.k("h1", { value: "Hello, eisen!" }),
+            ]);
+            
+            root.appendChild(div);
             return {
                 mounted: () => {
                 }
