@@ -129,13 +129,52 @@ export class ` + componentName + ` extends Component {
 			_ = json.Unmarshal(body, &npmRes)
 
 			err = os.Chdir(projectName)
-			packagejson := []byte("{\n  \"name\": \"" + projectName + "\",\n  \"version\": \"1.0.0\",\n  \"description\": \"An eisen Project\",\n  \"main\": \"index.ts\",\n  \"scripts\": {\n    \"dev\": \"parcel src/index.html\",\n    \"clean\": \"rm -rf dist/ && rm -rf lib/\" },\n  \"author\": \"\",\n  \"license\": \"ISC\",\n  \"dependencies\": {\n    \"@kloudsoftware/eisen\": \"" + npmRes.Results[0].Package.Version + "\"\n  },\n  \"devDependencies\": {\n    \"parcel-plugin-static-files-copy\": \"^2.0.0\",\n    \"sass\": \"^1.18.0\",\n    \"typescript\": \"^3.4.2\"\n  }\n}")
+			packagejson := []byte(`{
+  "name": "` + projectName + `",
+  "version": "1.0.0",
+  "description": "An eisen Project",
+  "main": "index.ts",
+  "scripts": {
+    "dev": "npx parcel src/index.html",
+    "build": "npx parcel build src/index.html",
+    "clean": "rm -rf dist/ && rm -rf lib/" },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@kloudsoftware/eisen": "1.0.25"
+  },
+  "devDependencies": {
+    "parcel-plugin-static-files-copy": "^2.0.0",
+    "sass": "^1.18.0",
+    "typescript": "^3.4.2"
+  }
+}`)
 			gitignore := []byte("node_modules/\nlib/\ndist\n.cache/\n.#*")
 
 			err = ioutil.WriteFile("package.json", packagejson, 0644)
 			check(err)
 			err = ioutil.WriteFile(".gitignore", gitignore, 0644)
 			check(err)
+
+			if _, err := os.Stat("static"); os.IsNotExist(err) {
+				err = os.Mkdir("static", os.ModePerm)
+				check(err)
+			}
+
+			dockerfile := []byte(`FROM voidlinux/voidlinux
+RUN xbps-install -Syu nodejs nginx curl
+WORKDIR /app
+ADD src/ src/
+ADD package.json .
+ADD static/ static/
+RUN npm install && npm run build &&  mv /app/dist/* /usr/share/nginx/html
+RUN curl https://gist.githubusercontent.com/larsgrah/6003204aaf2b32b885682e7fe94c0ed8/raw/62b96d8820b62220d618fb4edb00223862c66127/nginx.conf -o /etc/nginx/nginx.conf
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]`)
+
+			err = ioutil.WriteFile("Dockerfile", dockerfile, 0644)
+			check(err)
+
 			err = os.Mkdir("src", os.ModePerm)
 			err = os.Chdir("src")
 
