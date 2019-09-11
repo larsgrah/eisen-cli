@@ -79,13 +79,16 @@ func main() {
 				os.Exit(-1)
 			}
 
+			err := os.Chdir("src")
+			check(err)
+
 			componentName := os.Args[3]
 			if _, err := os.Stat("components"); os.IsNotExist(err) {
 				err = os.Mkdir("components", os.ModePerm)
 				check(err)
 			}
 
-			err := os.Chdir("components")
+			err = os.Chdir("components")
 			check(err)
 
 			if _, err := os.Stat(strings.ToLower(componentName)); os.IsNotExist(err) {
@@ -337,7 +340,7 @@ const routerMnt = app.createElement("div", undefined, container);
 
 const router = app.useRouter(routerMnt);
 router.registerRoute("/", new HelloEisen())
-router.resolveRoute("/").catch(e => console.error(e));
+router.resolveRoute(document.location.pathname).catch(() => router.resolveRoute("/"));
 
 `)
 
